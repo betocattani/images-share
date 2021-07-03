@@ -1,11 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import dog from './assets/dog.png';
+
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+      <Image source={dog} style={styles.logo} />
+
+      <Text style={styles.instructions}>
+        Dog App
+      </Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -17,5 +23,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  logo: {
+    width: 305,
+    height: 280,
+    marginBottom: 10,
+  },
+  instructions: {
+    color: '#888',
+    fontSize: 20,
+    marginHorizontal: 15,
   },
 });
