@@ -1,13 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import logo from './assets/logo.png';
-import * as ImagePicker from 'expo-image-picker'
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
-
+import uploadToAnonymousFilesAsync from 'anonymous-files'; 
 
 export default function App() {
-  const [selectedImage, setSelectedImage] = React.useState(null);
+  let [selectedImage, setSelectedImage] = React.useState(null);
 
   let openImagePickerAsync = async() => {
     let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -18,29 +16,31 @@ export default function App() {
     }
 
     let pickerResult = await ImagePicker.launchImageLibraryAsync();
-
     if (pickerResult.cancelled === true) {
       return;
     }
 
-    setSelectedImage({ localUri: pickerResult.uri });
+    if (Platform.OS === 'web') {
+      let remoteUri = await uploadToAnonymousFilesAsync(pickerResult.uri);
+      setSelectedImage({ localUri: pickerResult.uri, remoteUri });
+    } else {
+      setSelectedImage({ localUri: pickerResult.uri, remoteUri: null });
+    }
   };
 
   let openShareDialogAsync = async () => {
     if (!(await Sharing.isAvailableAsync())) {
-      alert(`UH oh, sharing isn't available on your platform`);
+      alert(`The image is available for sharing at: ${selectedImage.remoteUri}`);
+      return;
     }
 
-    await Sharing.shareAsync(selectedImage.localUri)
+    Sharing.shareAsync(selectedImage.remoteUri || selectedImage.localUri)
   };
 
   if (selectedImage !== null) {
     return (
       <View style={styles.container}>
-        <Image
-          source={{ uri: selectedImage.localUri }}
-          style={styles.thumbnail}
-        />
+        <Image source={{ uri: selectedImage.localUri }} style={styles.thumbnail} />
         <TouchableOpacity onPress={openShareDialogAsync} style={styles.button}>
           <Text style={styles.buttonText}>Share this photo</Text>
         </TouchableOpacity>
@@ -50,7 +50,6 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Image source={logo} style={styles.logo} />
 
       <Text style={styles.instructions}>
         Upload a new photo of your Dog!
@@ -59,7 +58,6 @@ export default function App() {
       <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
         <Text style={styles.buttonText}>Pick a photo</Text>
       </TouchableOpacity>
-      <StatusBar style="auto" />
     </View>
   );
 }
@@ -70,11 +68,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  logo: {
-    width: 305,
-    height: 280,
-    marginBottom: 10,
   },
   instructions: {
     color: '#888',
