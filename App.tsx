@@ -1,13 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import dog from './assets/dog.png';
+import logo from './assets/logo.png';
 
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Image source={dog} style={styles.logo} />
+      <Image source={logo} style={styles.logo} />
 
       <Text style={styles.instructions}>
         Upload a new photo of your Dog!
